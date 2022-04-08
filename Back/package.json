@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/LeDocLH76/Web-Developer-P6#readme",
   "dependencies": {
-    "express": "^4.17.3"
+    "express": "^4.17.3",
+    "mongoose": "^6.2.10",
+    "mongoose-unique-validator": "^3.0.0"
   }
 }

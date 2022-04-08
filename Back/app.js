@@ -1,5 +1,17 @@
 const express = require('express');
 const app = express();
+const mongoose = require('mongoose');
+
+
+mongoose.connect('mongodb+srv://DenisOnP6:P6FromDenisAtMongo@cluster0.8lsy3.mongodb.net/Piiquante?retryWrites=true&w=majority',
+    {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    })
+    .then(() => console.log('Connexion à MongoDB réussie !'))
+    .catch(() => console.log('Connexion à MongoDB échouée !'));
+
+
 
 app.use(express.json());
 
@@ -12,11 +24,11 @@ app.use((req, res, next) => {
 
 app.post('/api/auth/signup', (req, res, next) => {
     console.log(req.body);
-    res.status(200).json({message: 'UnString'});
+    res.status(200).json({ message: 'UnString' });
 });
 
 app.post('/api/auth/login', (req, res, next) => {
-    res.status(200).json({userId: 'IdentifiantUtilisateur', token: 'MonToken' });
+    res.status(200).json({ userId: 'IdentifiantUtilisateur', token: 'MonToken' });
 })
 
 app.get('/api/truc', (req, res, next) => {

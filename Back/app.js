@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
+const userRoutes = require('./routes/userRoute');
+const sauceRoutes = require('./routes/sauceRoute');
 
 
 mongoose.connect('mongodb+srv://DenisOnP6:P6FromDenisAtMongo@cluster0.8lsy3.mongodb.net/Piiquante?retryWrites=true&w=majority',
@@ -22,24 +24,9 @@ app.use((req, res, next) => {
     next();
 });
 
-app.post('/api/auth/signup', (req, res, next) => {
-    console.log(req.body);
-    res.status(200).json({ message: 'UnString' });
-});
+app.use('/api/auth', userRoutes);
+app.use('/api', sauceRoutes);
 
-app.post('/api/auth/login', (req, res, next) => {
-    res.status(200).json({ userId: 'IdentifiantUtilisateur', token: 'MonToken' });
-})
-
-app.get('/api/truc', (req, res, next) => {
-    const truc = [
-        { cle1: 'Valeur1' },
-        { cle1: 'Valeur2' },
-        { cle1: 'Valeur3' },
-        { cle1: 'Valeur4' }
-    ];
-    res.status(200).json(truc);
-})
 
 
 

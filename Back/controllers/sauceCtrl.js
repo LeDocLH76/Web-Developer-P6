@@ -19,3 +19,8 @@ exports.allSauces = (req, res, next) => {
     ];
     res.status(200).json(truc);
 };
+
+exports.newSauce = (req, res, next) => {
+    console.log(req);
+    return res.status(201).json({ message: 'Sauce transmise'});
+}

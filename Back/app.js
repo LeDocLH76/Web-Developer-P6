@@ -13,8 +13,6 @@ mongoose.connect('mongodb+srv://DenisOnP6:P6FromDenisAtMongo@cluster0.8lsy3.mong
     .then(() => console.log('Connexion à MongoDB réussie !'))
     .catch(() => console.log('Connexion à MongoDB échouée !'));
 
-
-
 app.use(express.json());
 
 app.use((req, res, next) => {

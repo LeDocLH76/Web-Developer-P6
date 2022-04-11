@@ -19,7 +19,6 @@ exports.createUser = (req, res, next) => {
 };
 
 exports.logUser = (req, res, next) => {
-    console.log('logUser req.body = ' + req.body);
     User.findOne({ email: req.body.email })
     .then(user => {
         if (!user) {

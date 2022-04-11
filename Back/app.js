@@ -3,6 +3,7 @@ const app = express();
 const mongoose = require('mongoose');
 const userRoutes = require('./routes/userRoute');
 const sauceRoutes = require('./routes/sauceRoute');
+const path = require('path');
 
 
 mongoose.connect('mongodb+srv://DenisOnP6:P6FromDenisAtMongo@cluster0.8lsy3.mongodb.net/Piiquante?retryWrites=true&w=majority',
@@ -22,6 +23,7 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api/auth', userRoutes);
 app.use('/api', sauceRoutes);
 

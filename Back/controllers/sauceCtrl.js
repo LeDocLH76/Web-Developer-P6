@@ -21,6 +21,19 @@ exports.allSauces = (req, res, next) => {
 };
 
 exports.newSauce = (req, res, next) => {
-    console.log(req);
-    return res.status(201).json({ message: 'Sauce transmise'});
-}
+    sauceObject = JSON.parse(req.body.sauce);
+
+    sauceObject.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+    sauceObject.likes = 0;
+    sauceObject.dislikes = 0;
+    sauceObject.userLiked = [];
+    sauceObject.userDisliked = [];
+    const sauce = new Sauce({ ...sauceObject });
+    console.log(req.body.sauce);
+    console.table(sauceObject);
+
+    sauce.save()
+        .then(() => res.status(201).json({ message: 'Sauce enregistrée' }))
+        .catch(error => res.status(500).json({ error }));
+
+};

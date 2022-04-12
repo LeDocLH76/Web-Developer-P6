@@ -93,3 +93,35 @@ exports.updateSauce = (req, res, next) => {
             .catch(error => res.status(500).json({ error }));
     }
 };
+
+exports.likeSauce = (req, res, next) => {
+    // console.log(req.body);
+    // console.log(req.params.id);
+    Sauce.findOne({ _id: req.params.id })
+    .then( sauce =>{
+        const userLike = parseInt(req.body.like);
+        const Likes = sauce.likes;
+        const Dislikes = sauce.dislikes;
+        const usersLiked = sauce.usersLiked;
+        const usersDisliked = sauce.usersDisliked;
+        
+        switch (userLike) {
+            case 1:
+                console.log("J'aime !")
+                return res.status(200).json({ message: 'J\'aime !' })
+                break;
+            case 0:
+                console.log("Je n'ai pas d'avis.")
+                return res.status(200).json({ message: 'Je n\'ai pas d\'avis.' })
+                break;
+            case -1:
+                console.log("Je n'aime pas !")
+                return res.status(200).json({ message: 'Je n\'aime pas !' })
+                break;
+            default:
+                console.log("Il y à une erreur !");
+                return res.status(400).json({ message: 'Il y à une erreur !' })
+        }
+    })
+    .catch(error => res.status(500).json({ error }));
+}

@@ -64,8 +64,6 @@ exports.updateSauce = (req, res, next) => {
                     ...JSON.parse(req.body.sauce),
                     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
                 };
-                console.log(`reqId = ${sauceObject.userId}, sauceId = ${sauce.userId}`);
-
                 if (sauceObject.userId != sauce.userId) {
                     return res.status(403).json({ message: 'Modification non autorisée.' })
                 } else {
@@ -95,33 +93,58 @@ exports.updateSauce = (req, res, next) => {
 };
 
 exports.likeSauce = (req, res, next) => {
-    // console.log(req.body);
-    // console.log(req.params.id);
+    const userLike = req.body.like;
     Sauce.findOne({ _id: req.params.id })
-    .then( sauce =>{
-        const userLike = parseInt(req.body.like);
-        const Likes = sauce.likes;
-        const Dislikes = sauce.dislikes;
-        const usersLiked = sauce.usersLiked;
-        const usersDisliked = sauce.usersDisliked;
-        
-        switch (userLike) {
-            case 1:
-                console.log("J'aime !")
-                return res.status(200).json({ message: 'J\'aime !' })
-                break;
-            case 0:
-                console.log("Je n'ai pas d'avis.")
-                return res.status(200).json({ message: 'Je n\'ai pas d\'avis.' })
-                break;
-            case -1:
-                console.log("Je n'aime pas !")
-                return res.status(200).json({ message: 'Je n\'aime pas !' })
-                break;
-            default:
-                console.log("Il y à une erreur !");
-                return res.status(400).json({ message: 'Il y à une erreur !' })
-        }
-    })
-    .catch(error => res.status(500).json({ error }));
+        .then(sauce => {
+            switch (userLike) {
+                case 1:
+                    console.log("J'aime !");
+                    if (!sauce.usersLiked.includes(req.body.userId)) {
+                        console.log('J\'ajoute le like !');
+                        sauce.likes ++;
+                        sauce.usersLiked.push(req.body.userId);
+                        Sauce.updateOne({ _id: req.params.id }, { likes: sauce.likes, usersLiked: sauce.usersLiked, _id: req.params.id })
+                            .then(() => res.status(201).json({ message: 'Sauce modifiée.' }))
+                            .catch(error => res.status(404).json({ error }))
+                    }
+                    break;
+                case 0:
+                    console.log("Je n'ai pas d'avis.");
+                    if (sauce.usersLiked.includes(req.body.userId)) {
+                        console.log('Je retire le like');
+                        if (sauce.likes >= 1)  {sauce.likes -- };
+                        const index = sauce.usersLiked.findIndex(userId => userId == req.body.userId)
+                        sauce.usersLiked.splice(index, 1);
+                        Sauce.updateOne({ _id: req.params.id }, { likes: sauce.likes, usersLiked: sauce.usersLiked, _id: req.params.id })
+                            .then(() => res.status(201).json({ message: 'Sauce modifiée.' }))
+                            .catch(error => res.status(404).json({ error }))
+                    } else {
+                        if (sauce.usersDisliked.includes(req.body.userId)) {
+                            console.log('Je retire le dislike');
+                            if (sauce.dislikes >= 1) {sauce.dislikes -- };
+                            const index = sauce.usersDisliked.findIndex(userId => userId == req.body.userId)
+                            sauce.usersDisliked.splice(index, 1);
+                            Sauce.updateOne({ _id: req.params.id }, { dislikes: sauce.dislikes, usersDisliked: sauce.usersDisliked, _id: req.params.id })
+                                .then(() => res.status(201).json({ message: 'Sauce modifiée.' }))
+                                .catch(error => res.status(404).json({ error }))
+                        }
+                    }
+                    break;
+                case -1:
+                    console.log("Je n'aime pas !");
+                    if (!sauce.usersLiked.includes(req.body.userId)) {
+                        console.log('J\'ajoute le dislike !');
+                        sauce.dislikes ++;
+                        sauce.usersDisliked.push(req.body.userId);
+                        Sauce.updateOne({ _id: req.params.id }, { dislikes: sauce.dislikes, usersDisliked: sauce.usersDisliked, _id: req.params.id })
+                            .then(() => res.status(201).json({ message: 'Sauce modifiée.' }))
+                            .catch(error => res.status(404).json({ error }))
+                    }
+                    break;
+                default:
+                    console.log("Il y à une erreur !");
+                    return res.status(400).json({ message: 'Il y à une erreur !' })
+            }
+        })
+        .catch(error => res.status(500).json({ error }));
 }

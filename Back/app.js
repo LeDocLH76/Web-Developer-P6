@@ -6,12 +6,7 @@ const sauceRoutes = require('./routes/sauceRoute');
 const path = require('path');
 require('dotenv').config();
 
-
-mongoose.connect(process.env.MONGOOSE_KEY,
-    {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    })
+mongoose.connect(process.env.MONGOOSE_KEY,{useNewUrlParser: true,useUnifiedTopology: true})
     .then(() => console.log('Connexion à MongoDB réussie !'))
     .catch(() => console.log('Connexion à MongoDB échouée !'));
 

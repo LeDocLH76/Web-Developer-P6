@@ -2,9 +2,14 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const userDataValidation = require('../validations/userValidation');
+
 
 exports.createUser = (req, res, next) => {
     console.log('Demande de création de compte');
+    const {error} = userDataValidation(req.body);
+    if (error) return res.status(401).json(error.details[0].message);
+
     bcrypt.hash(req.body.password, 10)
     .then(hash => {
         const user = new User({
@@ -19,6 +24,9 @@ exports.createUser = (req, res, next) => {
 };
 
 exports.logUser = (req, res, next) => {
+    const {error} = userDataValidation(req.body);
+    if (error) return res.status(401).json(error.details[0].message);
+
     User.findOne({ email: req.body.email })
     .then(user => {
         if (!user) {

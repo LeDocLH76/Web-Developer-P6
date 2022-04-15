@@ -8,7 +8,7 @@ const userDataValidation = require('../validations/userValidation');
 exports.createUser = (req, res, next) => {
     console.log('Demande de création de compte');
     const {error} = userDataValidation(req.body);
-    if (error) return res.status(401).json(error.details[0].message);
+    if (error) return res.status(401).json({message: error.details[0].message, messageClair: "Minimum 8 and maximum 30 characters, at least one uppercase letter, one lowercase letter, one number and one special character."});
 
     bcrypt.hash(req.body.password, 10)
     .then(hash => {

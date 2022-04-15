@@ -6,9 +6,12 @@ function userDataValidation(body) {
             .email()
             .required(),
         password: Joi.string()
-            .pattern(new RegExp('^[a-zA-Z0-9]{5,30}$'))
-            .required()
+        .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])[a-zA-Z0-9@$!%*?&]{8,30}$'))
+        .required()
     });
+    // Email => Minimum eight and maximum 30 characters,
+    // at least one uppercase letter, one lowercase letter,
+    // one number and one special character.
     return userDataValidationSchema.validate(body)
 }
 module.exports = userDataValidation

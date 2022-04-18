@@ -15,8 +15,13 @@ exports.allSauces = (req, res, next) => {
 exports.newSauce = (req, res, next) => {
     console.log('Je suis dans new sauce');
     sauceObject = JSON.parse(req.body.sauce);
-    const {error} = sauceDataValidation(sauceObject);
-    if (error) return res.status(401).json(error.details[0].message);
+
+    const { value } = sauceDataValidation(sauceObject);
+    sauceObject = {...value};
+
+    const { error } = sauceDataValidation(sauceObject);
+    if (error) return res.status(422).json({ message: error.details[0].message });
+
     sauceObject.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
     sauceObject.likes = 0;
     sauceObject.dislikes = 0;
@@ -60,8 +65,13 @@ exports.updateSauce = (req, res, next) => {
                     ...JSON.parse(req.body.sauce),
                     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
                 };
-                const {error} = sauceDataValidation(sauceObject);
+
+                const { value } = sauceDataValidation(sauceObject);
+                sauceObject = { ...value };
+
+                const { error } = sauceDataValidation(sauceObject);
                 if (error) return res.status(401).json(error.details[0].message);
+
                 if (sauceObject.userId != sauce.userId) {
                     return res.status(403).json({ message: 'Modification non autorisée.' })
                 } else {
@@ -77,10 +87,19 @@ exports.updateSauce = (req, res, next) => {
     } else {
         Sauce.findOne({ _id: req.params.id })
             .then(sauce => {
+
+                sauceObject = {...req.body};
+
+                const { value } = sauceDataValidation(sauceObject);
+                sauceObject = { ...value };
+
+                const { error } = sauceDataValidation(sauceObject);
+                if (error) return res.status(401).json(error.details[0].message);
+
                 if (req.body.userId != sauce.userId) {
                     return res.status(403).json({ message: 'Modification non autorisée.' })
                 } else {
-                    Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
+                    Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
                         .then(() => res.status(201).json({ message: 'Sauce modifiée.' }))
                         .catch(error => res.status(404).json({ error }))
                 };
@@ -90,7 +109,7 @@ exports.updateSauce = (req, res, next) => {
 };
 
 exports.likeSauce = (req, res, next) => {
-    const {error} = likeDataValidation(req.body);
+    const { error } = likeDataValidation(req.body);
     if (error) return res.status(401).json(error.details[0].message);
     const userLike = req.body.like;
     Sauce.findOne({ _id: req.params.id })

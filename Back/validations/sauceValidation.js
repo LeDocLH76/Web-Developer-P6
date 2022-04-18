@@ -6,21 +6,25 @@ function sauceDataValidation (sauceObject) {
             .trim()
             .min(3)
             .max(80)
+            .truncate()
             .required(),
         manufacturer: Joi.string()
             .trim()
             .min(3)
             .max(80)
+            .truncate()
             .required(),
         description: Joi.string()
             .trim()
             .min(3)
-            .max(500)
+            .max(800)
+            .truncate()
             .required(),
         mainPepper: Joi.string()
             .trim()
             .min(3)
             .max(80)
+            .truncate()
             .required(),
         heat: Joi.number()
             .integer()

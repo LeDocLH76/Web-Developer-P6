@@ -12,4 +12,5 @@ function likeDataValidation(sauceObject) {
     });
     return likeDataValidationSchema.validate(sauceObject)
 }
+
 module.exports = likeDataValidation

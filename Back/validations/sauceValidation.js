@@ -37,4 +37,5 @@ function sauceDataValidation (sauceObject) {
     });
     return sauceDataValidationSchema.validate(sauceObject)
 }
+
 module.exports = sauceDataValidation

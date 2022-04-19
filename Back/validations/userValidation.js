@@ -14,4 +14,5 @@ function userDataValidation(body) {
     // one number and one special character.
     return userDataValidationSchema.validate(body)
 }
+
 module.exports = userDataValidation

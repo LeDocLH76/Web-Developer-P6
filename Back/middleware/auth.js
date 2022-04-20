@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 module.exports = (req, res, next) => {
+    // N'autorise à poursuivre que si le userId de l'utilisateur et celui de son TOKEN sont identique
+    // à condition que le TOKEN ne soit pas expiré ou absent
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decodedToken = jwt.verify(token, process.env.TOKEN_KEY);

@@ -14,6 +14,11 @@ exports.allSauces = (req, res, next) => {
 
 exports.newSauce = (req, res, next) => {
     console.log('Je suis dans new sauce');
+    // Si le filtre multer rejeté le fichier, req.file n'existe pas
+    if (!req.file) {
+        return res.status(401).json({ message: 'Les fichiers acceptés: .jpg, .jpeg, .png' });
+    }
+
     sauceObject = JSON.parse(req.body.sauce);
 
     const { value, error } = sauceDataValidation(sauceObject);
@@ -60,7 +65,14 @@ exports.deleteSauce = (req, res, next) => {
 
 exports.updateSauce = (req, res, next) => {
     console.log('Je suis dans update');
-    if (req.file) {
+    // Si le filtre multer rejeté le fichier, req.file n'existe pas,
+    // mais la sauce est dans req.body.sauce au format json.
+    // Il faut la replacer dans req.body en objet.
+    if (req.body.sauce) {
+        req.body = {...JSON.parse(req.body.sauce)};
+    }
+
+    if (req.file) {// Si l'image a changé
         Sauce.findOne({ _id: req.params.id })
             .then(sauce => {
                 const sauceObject = {
@@ -70,10 +82,9 @@ exports.updateSauce = (req, res, next) => {
 
                 const { value, error } = sauceDataValidation(sauceObject);
                 sauceObject = { ...value };
-
                 if (error) {
                     console.log(error.details[0].message);
-                    res.status(401).json({ message: 'Saisie invalide.' });
+                    res.status(401).json({ message: 'Saisie invalide 1.' });
                     return
                 }
 
@@ -89,17 +100,16 @@ exports.updateSauce = (req, res, next) => {
                 });
             })
             .catch(error => res.status(500).json({ error }));
-    } else {
+    } else {// Si l'image n'a pas changé
         Sauce.findOne({ _id: req.params.id })
             .then(sauce => {
                 sauceObject = { ...req.body };
 
                 const { value, error } = sauceDataValidation(sauceObject);
                 sauceObject = { ...value };
-
                 if (error) {
                     console.log(error.details[0].message);
-                    res.status(401).json({ message: 'Saisie invalide.' });
+                    res.status(401).json({ message: 'Saisie invalide 2.' });
                     return
                 }
 

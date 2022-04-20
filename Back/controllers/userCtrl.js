@@ -7,6 +7,7 @@ const userDataValidation = require('../validations/userValidation');
 
 exports.createUser = (req, res, next) => {
     console.log('Demande de création de compte');
+    // Validation des entrées de l'utilisateur
     const { error } = userDataValidation(req.body);
     if (error) {
         console.log(error.details[0].message);
@@ -15,6 +16,7 @@ exports.createUser = (req, res, next) => {
         });
         return;
     }
+    // Cryptage du mot de passe, création d'un User, enregistrement sur la BD
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
             const user = new User({
@@ -29,18 +31,21 @@ exports.createUser = (req, res, next) => {
 };
 
 exports.logUser = (req, res, next) => {
+    // Validation des entrées de l'utilisateur
     const { error } = userDataValidation(req.body);
     if (error) {
         console.log(error.details[0].message)
         res.status(400).json({ message: 'Saisie invalide.' });
         return
     };
-
+    // Recherche un User sur la BD
     User.findOne({ email: req.body.email })
         .then(user => {
+            // Trouvé ???
             if (!user) {
                 return res.status(401).json({ error: 'Utilisateur non trouvé.' });
             }
+            // Vérification du mot de passe, fourniture au front d'un TOKEN crypté +++
             bcrypt.compare(req.body.password, user.password)
                 .then(valid => {
                     if (!valid) {

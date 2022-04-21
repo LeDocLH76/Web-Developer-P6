@@ -14,7 +14,7 @@ exports.allSauces = (req, res, next) => {
 
 exports.newSauce = (req, res, next) => {
     console.log('Je suis dans new sauce');
-    // Si le filtre multer rejeté le fichier, req.file n'existe pas
+    // Si le filtre multer a rejeté le fichier, req.file n'existe pas
     if (!req.file) {
         return res.status(401).json({ message: 'Les fichiers acceptés: .jpg, .jpeg, .png' });
     }
@@ -22,11 +22,15 @@ exports.newSauce = (req, res, next) => {
     sauceObject = JSON.parse(req.body.sauce);
 
     const { value, error } = sauceDataValidation(sauceObject);
-    sauceObject = { ...value };
+    sauceObject = value;
     if (error) {
-        console.log(error.details[0].message);
+        console.log(error.details[0].message, req.file.filename);
+        fs.unlink(`./images/${req.file.filename}`, () => {
+            console.log('Fichier effacé')
+        });
         res.status(401).json({ message: 'Saisie invalide.' });
         return
+
     }
 
     sauceObject.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
@@ -65,11 +69,11 @@ exports.deleteSauce = (req, res, next) => {
 
 exports.updateSauce = (req, res, next) => {
     console.log('Je suis dans update');
-    // Si le filtre multer rejeté le fichier, req.file n'existe pas,
+    // Si le filtre multer a rejeté le fichier, req.file n'existe pas,
     // mais la sauce est dans req.body.sauce au format json.
     // Il faut la replacer dans req.body en objet.
-    if (req.body.sauce) {
-        req.body = {...JSON.parse(req.body.sauce)};
+    if (req.body.sauce && !req.file) {
+        req.body = JSON.parse(req.body.sauce);
     }
 
     if (req.file) {// Si l'image a changé
@@ -81,17 +85,33 @@ exports.updateSauce = (req, res, next) => {
                 };
 
                 const { value, error } = sauceDataValidation(sauceObject);
-                sauceObject = { ...value };
+                sauceObject.name = value.name;
+                sauceObject.manufacturer = value.manufacturer;
+                sauceObject.description = value.description;
+                sauceObject.mainPepper = value.mainPepper;
+                sauceObject.heat = value.heat;
+                sauceObject.userId = value.userId;
+                sauceObject.imageUrl = value.imageUrl;
                 if (error) {
                     console.log(error.details[0].message);
-                    res.status(401).json({ message: 'Saisie invalide 1.' });
+                    fs.unlink(`./images/${req.file.filename}`, () => {
+                        console.log('Fichier effacé')
+                    });
+                    res.status(401).json({ message: 'Saisie invalide.' });
                     return
                 }
-
+                // Si l'utilisateur n'est pas proprietaire de la sauce
+                // Si une image à été enregistrée, on l'efface et on retourne une erreur
                 if (sauceObject.userId != sauce.userId) {
+                    if (sauceObject.imageUrl) {
+                        const filename = sauceObjet.imageUrl.split('/images/')[1];
+                        fs.unlink(`./images/${filename}`, () => {
+                            console.log('Fichier effacé')
+                        });
+                    }
                     return res.status(403).json({ message: 'Modification non autorisée.' })
                 }
-
+                // Si tout c'est bien passé, on efface l'image precedente et on enregistre la sauce dans la BD
                 const filename = sauce.imageUrl.split('/images/')[1];
                 fs.unlink(`./images/${filename}`, () => {
                     Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
@@ -112,11 +132,11 @@ exports.updateSauce = (req, res, next) => {
                     res.status(401).json({ message: 'Saisie invalide 2.' });
                     return
                 }
-
+                // Si l'utilisateur n'est pas proprietaire de la sauce et on retourne une erreur
                 if (req.body.userId != sauce.userId) {
                     return res.status(403).json({ message: 'Modification non autorisée.' })
                 }
-
+                // Si tout c'est bien passé, on enregistre la sauce dans la BD
                 Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
                     .then(() => res.status(201).json({ message: 'Sauce modifiée.' }))
                     .catch(error => res.status(404).json({ error }))
@@ -182,7 +202,7 @@ exports.likeSauce = (req, res, next) => {
                             .catch(error => res.status(404).json({ error }))
                     }
                     break;
-                    
+
                 default:
                     console.log("Il y à une erreur !");
                     return res.status(400).json({ message: 'Il y à une erreur !' })

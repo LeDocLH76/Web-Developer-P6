@@ -33,7 +33,8 @@ function sauceDataValidation (sauceObject) {
             .required(),
         userId: Joi.string()
             .pattern(new RegExp('^[a-z0-9]+$'))
-            .required()
+            .required(),
+        imageUrl: Joi.string()
     });
     return sauceDataValidationSchema.validate(sauceObject)
 }
